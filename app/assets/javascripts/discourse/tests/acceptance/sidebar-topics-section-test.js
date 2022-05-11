@@ -156,7 +156,7 @@ acceptance("Sidebar - Topics Section", function (needs) {
         "the tracked link is marked as active"
       );
 
-      assert.strictEqual(
+      assert.ok(
         exists("#navigation-bar > li > a[href='/top?f=tracked']"),
         "`f` query param kept in URL for `top` link"
       );
