@@ -42,6 +42,7 @@ export default Component.extend(FilterModeMixin, {
 
     let href = content.get("href");
     let queryParams = [];
+    const currentRouteQueryParams = content.currentRouteQueryParams;
 
     // Include the category id if the option is present
     if (content.get("includeCategoryId")) {
@@ -54,11 +55,13 @@ export default Component.extend(FilterModeMixin, {
     // To reset the "filter" sticky param, at least one query param is needed.
     // If no query param is present, add an empty one to ensure a ? is
     // appended to the URL.
-    if (content.currentRouteQueryParams) {
-      if (content.currentRouteQueryParams.filter) {
-        if (queryParams.length === 0) {
-          queryParams.push("");
-        }
+    if (currentRouteQueryParams) {
+      if (currentRouteQueryParams.filter && queryParams.length === 0) {
+        queryParams.push("");
+      }
+
+      if (currentRouteQueryParams.f) {
+        queryParams.push(`f=${currentRouteQueryParams.f}`);
       }
     }
 

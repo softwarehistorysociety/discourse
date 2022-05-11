@@ -155,6 +155,11 @@ acceptance("Sidebar - Topics Section", function (needs) {
         exists(".sidebar-section-topics .sidebar-section-link-tracked.active"),
         "the tracked link is marked as active"
       );
+
+      assert.strictEqual(
+        exists("#navigation-bar > li > a[href='/top?f=tracked']"),
+        "`f` query param kept in URL for `top` link"
+      );
     }
   );
 
