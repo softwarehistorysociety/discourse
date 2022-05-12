@@ -215,11 +215,11 @@ describe FileStore::S3Store do
     describe "#remove_upload" do
       it "removes the file from s3 with the right paths" do
         s3_helper.expects(:s3_bucket).returns(s3_bucket).at_least_once
+        s3_helper.expects(:copy).with("original/1X/#{upload.sha1}.png", "tombstone/original/1X/#{upload.sha1}.png")
+
         upload.update!(url: "//s3-upload-bucket.s3.dualstack.us-west-1.amazonaws.com/original/1X/#{upload.sha1}.png")
         s3_object = stub
 
-        s3_bucket.expects(:object).with("tombstone/original/1X/#{upload.sha1}.png").returns(s3_object)
-        expect_copy_from(s3_object, "s3-upload-bucket/original/1X/#{upload.sha1}.png")
         s3_bucket.expects(:object).with("original/1X/#{upload.sha1}.png").returns(s3_object)
         s3_object.expects(:delete)
 
@@ -232,11 +232,11 @@ describe FileStore::S3Store do
         path = "optimized/1X/#{upload.sha1}_#{optimized.version}_#{optimized.width}x#{optimized.height}.png"
 
         s3_helper.expects(:s3_bucket).returns(s3_bucket).at_least_once
+        s3_helper.expects(:copy).with(path, "tombstone/#{path}")
+
         optimized.update!(url: "//s3-upload-bucket.s3.dualstack.us-west-1.amazonaws.com/#{path}")
         s3_object = stub
 
-        s3_bucket.expects(:object).with("tombstone/#{path}").returns(s3_object)
-        expect_copy_from(s3_object, "s3-upload-bucket/#{path}")
         s3_bucket.expects(:object).with(path).returns(s3_object)
         s3_object.expects(:delete)
 
@@ -250,11 +250,11 @@ describe FileStore::S3Store do
 
         it "removes the file from s3 with the right paths" do
           s3_helper.expects(:s3_bucket).returns(s3_bucket).at_least_once
+          s3_helper.expects(:copy).with("discourse-uploads/original/1X/#{upload.sha1}.png", "discourse-uploads/tombstone/original/1X/#{upload.sha1}.png")
+
           upload.update!(url: "//s3-upload-bucket.s3.dualstack.us-west-1.amazonaws.com/discourse-uploads/original/1X/#{upload.sha1}.png")
           s3_object = stub
 
-          s3_bucket.expects(:object).with("discourse-uploads/tombstone/original/1X/#{upload.sha1}.png").returns(s3_object)
-          expect_copy_from(s3_object, "s3-upload-bucket/discourse-uploads/original/1X/#{upload.sha1}.png")
           s3_bucket.expects(:object).with("discourse-uploads/original/1X/#{upload.sha1}.png").returns(s3_object)
           s3_object.expects(:delete)
 
