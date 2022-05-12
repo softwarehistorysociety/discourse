@@ -109,7 +109,7 @@ describe "S3Helper" do
       s3_helper.send(:s3_bucket).expects(:object).with(destination_key).returns(destination_stub)
 
       destination_stub.expects(:copy_from).with(source_stub, {}).returns(
-        stub(copy_object_result: stub(etag: "\"etag\""))
+        stub(copy_object_result: stub(etag: '"etag"'))
       )
 
       response = s3_helper.copy(source_key, destination_key)
@@ -127,7 +127,7 @@ describe "S3Helper" do
 
       options = { multipart_copy: true, content_length: source_stub.size }
       destination_stub.expects(:copy_from).with(source_stub, options).returns(
-        stub(data: stub(etag: "\"etag\""))
+        stub(data: stub(etag: '"etag"'))
       )
 
       response = s3_helper.copy(source_key, destination_key)
@@ -146,7 +146,7 @@ describe "S3Helper" do
       content_disposition = "attachment; filename=\"source.jpg\"; filename*=UTF-8''source.jpg"
       options = { content_disposition: content_disposition, metadata_directive: "REPLACE" }
       destination_stub.expects(:copy_from).with(source_stub, options).returns(
-        stub(data: stub(etag: "\"etag\""))
+        stub(data: stub(etag: '"etag"'))
       )
 
       response = s3_helper.copy(

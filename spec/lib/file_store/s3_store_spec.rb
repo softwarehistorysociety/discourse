@@ -191,7 +191,7 @@ describe FileStore::S3Store do
   context 'copying files in S3' do
     describe '#copy_file' do
       it "copies the from in S3 with the right paths" do
-        s3_helper.expects(:s3_bucket).returns(s3_bucket)
+        s3_helper.expects(:s3_bucket).returns(s3_bucket).at_least_once
 
         upload.update!(
           url: "//s3-upload-bucket.s3.dualstack.us-west-1.amazonaws.com/original/1X/#{upload.sha1}.png"
@@ -204,7 +204,7 @@ describe FileStore::S3Store do
 
         s3_bucket.expects(:object).with(destination).returns(s3_object)
 
-        expect_copy_from(s3_object, "s3-upload-bucket/#{source}")
+        expect_copy_from(s3_object, source)
 
         store.copy_file(upload.url, source, destination)
       end
@@ -276,11 +276,10 @@ describe FileStore::S3Store do
 
       it "removes the file from s3 with the right paths" do
         s3_helper.expects(:s3_bucket).returns(s3_bucket).at_least_once
+        s3_helper.expects(:copy).with(image_path, "tombstone/#{image_path}")
         s3_object = stub
 
-        s3_bucket.expects(:object).with("tombstone/#{image_path}").returns(s3_object)
-        expect_copy_from(s3_object, "s3-upload-bucket/#{image_path}")
-        s3_bucket.expects(:object).with("#{image_path}").returns(s3_object)
+        s3_bucket.expects(:object).with(image_path).returns(s3_object)
         s3_object.expects(:delete)
 
         store.remove_optimized_image(optimized_image)
@@ -299,13 +298,8 @@ describe FileStore::S3Store do
 
         it "removes the file from s3 with the right paths" do
           s3_helper.expects(:s3_bucket).returns(s3_bucket).at_least_once
+          s3_helper.expects(:copy).with("discourse-uploads/#{image_path}", "discourse-uploads/tombstone/#{image_path}")
           s3_object = stub
-
-          s3_bucket.expects(:object)
-            .with("discourse-uploads/tombstone/#{image_path}")
-            .returns(s3_object)
-
-          expect_copy_from(s3_object, "s3-upload-bucket/discourse-uploads/#{image_path}")
 
           s3_bucket.expects(:object).with(
             "discourse-uploads/#{image_path}"
@@ -485,10 +479,14 @@ describe FileStore::S3Store do
   end
 
   def expect_copy_from(s3_object, source)
-    s3_object.expects(:copy_from).with(
-      copy_source: source
-    ).returns(
+    source_object = Aws::S3::Object.new(bucket_name: "test-bucket", key: source, client: client)
+    source_object.stubs(:size).returns(5 * 1024 * 1024)
+    s3_bucket.expects(:object).with(source).returns(source_object)
+
+    s3_object.expects(:copy_from).with(source_object, {}).returns(
       stub(copy_object_result: stub(etag: '"etagtest"'))
     )
+
+    source_object
   end
 end
