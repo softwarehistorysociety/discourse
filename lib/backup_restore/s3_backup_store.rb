@@ -104,7 +104,7 @@ module BackupRestore
     )
       s3_helper.copy(
         existing_external_upload_key,
-        File.join(s3_helper.s3_bucket_folder_path, original_filename),
+        File.join(s3_helper.s3_bucket_folder_path || "", original_filename),
         options: { acl: "private", apply_metadata_to_destination: true }
       )
       s3_helper.delete_object(existing_external_upload_key)
