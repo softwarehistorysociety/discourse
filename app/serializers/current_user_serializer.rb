@@ -73,7 +73,8 @@ class CurrentUserSerializer < BasicUserSerializer
              :bookmark_auto_delete_preference,
              :pending_posts_count,
              :experimental_sidebar_enabled,
-             :grouped_unread_high_priority_notifications
+             :grouped_unread_high_priority_notifications,
+             :like_notification_frequency
 
   delegate :user_stat, to: :object, private: true
   delegate :any_posts, :draft_count, :pending_posts_count, :read_faq?, to: :user_stat
@@ -149,6 +150,10 @@ class CurrentUserSerializer < BasicUserSerializer
 
   def bookmark_auto_delete_preference
     object.user_option.bookmark_auto_delete_preference
+  end
+
+  def like_notification_frequency
+    object.user_option.like_notification_frequency
   end
 
   def can_send_private_email_messages
